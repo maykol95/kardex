@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería de Productos</title>
+    <link rel="stylesheet" href="css/styles.css"> <!-- Enlace a CSS (opcional) -->
+</head>
+<body>
+
+    <div class="album py-5 bg-light">
+        <div class="container">
+            <div class="sidebar">
+                <h5>Filtrar por:</h5>
+                <label for="categoryFilter"><strong>Categoría:</strong></label>
+                <select id="categoryFilter" class="form-select" onchange="filterGallery()">
+                    <option value="">Todas</option>
+                </select>
+                <label for="channelFilter" style="margin-top: 10px;"><strong>Canal:</strong></label>
+                <select id="channelFilter" class="form-select" onchange="filterGallery()">
+                    <option value="">Todos</option>
+                </select>
+            </div>
+            <div id="gallery" class="row"></div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script> <!-- Enlace a tu script -->
+</body>
+</html>
