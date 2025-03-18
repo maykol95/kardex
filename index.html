@@ -164,94 +164,92 @@
     </div>
   </div>
 
-  <script>
-    let products = [];
+<script>
+  let products = [];
 
-    async function fetchProducts() {
-      const url = "https://script.google.com/macros/s/AKfycbwImHMl2rmLyoeKYzJ49zw0JCjmVGCXLx_mhSdJbumP87qO0HYDTmOHJPKvlO8L9jp9/exec"; // Tu URL de la API
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-        products = data.productos;
+  // URL de Google Apps Script
+  const apiUrl = "https://script.google.com/macros/s/AKfycbwImHMl2rmLyoeKYzJ49zw0JCjmVGCXLx_mhSdJbumP87qO0HYDTmOHJPKvlO8L9jp9/exec";
 
-        createGallery(products);
-        createFilterOptions(data.categorias, "categoryFilter");
-        createFilterOptions([...new Set(products.map(p => p.canal))], "channelFilter");
-      } catch (error) {
-        console.error("Error al obtener los productos:", error);
-      }
-    }
+  // Obtener datos desde Google Apps Script
+  fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
+      products = data.productos;
+      createGallery(products);
+      createFilterOptions(data.categorias, "categoryFilter");
+      createFilterOptions([...new Set(products.map(p => p.canal))], "channelFilter");
+    })
+    .catch(error => console.error("Error al obtener datos:", error));
 
-    function createGallery(filteredProducts) {
-      let gallery = document.getElementById('gallery');
-      gallery.innerHTML = '';
+  function createGallery(filteredProducts) {
+    let gallery = document.getElementById('gallery');
+    gallery.innerHTML = '';
 
-      filteredProducts.forEach(product => {
-        let col = document.createElement('div');
-        col.className = 'col';
-        let card = document.createElement('div');
-        card.className = 'card shadow-sm';
+    filteredProducts.forEach(product => {
+      let col = document.createElement('div');
+      col.className = 'col';
+      let card = document.createElement('div');
+      card.className = 'card shadow-sm';
+      
+      let img = document.createElement('img');
+      img.className = 'bd-placeholder-img card-img-top';
+      img.onclick = function() { openModal(product.imagen); };
+      img.src = product.imagen;
+      img.onerror = function() {
+        img.src = 'https://livetrade-qa.s3.amazonaws.com/IMG2025031715033331_noimage-705x705.jpg';
+      };
+      
+      let cardBody = document.createElement('div');
+      cardBody.className = 'card-body';
 
-        let img = document.createElement('img');
-        img.className = 'bd-placeholder-img card-img-top';
-        img.onclick = function() { openModal(product.imagen); };
-        img.src = product.imagen;
-        img.onerror = function() {
-          img.src = 'https://livetrade-qa.s3.amazonaws.com/IMG2025031715033331_noimage-705x705.jpg';
-        };
+      let cardText = document.createElement('p');
+      cardText.className = 'card-text';
+      cardText.innerHTML = `${product.nombre}`;
 
-        let cardBody = document.createElement('div');
-        cardBody.className = 'card-body';
+      let stockText = document.createElement('p');
+      stockText.className = 'stock-text';
+      stockText.innerHTML = `Canal: <span>${product.canal}</span> `  + `Stock: <span>${product.stock}</span>`;
+      
+      cardBody.appendChild(cardText);
+      cardBody.appendChild(stockText);
+      card.appendChild(img);
+      card.appendChild(cardBody);
+      col.appendChild(card);
+      gallery.appendChild(col);
+    });
+  }
 
-        let cardText = document.createElement('p');
-        cardText.className = 'card-text';
-        cardText.innerHTML = `${product.nombre}`;
+  function openModal(imageSrc) {
+    document.getElementById("modalImage").src = imageSrc;
+    document.getElementById("imageModal").style.display = "flex";
+  }
 
-        let stockText = document.createElement('p');
-        stockText.className = 'stock-text';
-        stockText.innerHTML = `Canal: <span>${product.canal}</span> | Stock: <span>${product.stock}</span>`;
+  function closeModal() {
+    document.getElementById("imageModal").style.display = "none";
+  }
 
-        cardBody.appendChild(cardText);
-        cardBody.appendChild(stockText);
-        card.appendChild(img);
-        card.appendChild(cardBody);
-        col.appendChild(card);
-        gallery.appendChild(col);
-      });
-    }
+  function createFilterOptions(options, selectId) {
+    let filterSelect = document.getElementById(selectId);
+    options.forEach(option => {
+      let opt = document.createElement('option');
+      opt.value = option;
+      opt.textContent = option;
+      filterSelect.appendChild(opt);
+    });
+  }
 
-    function openModal(imageSrc) {
-      document.getElementById("modalImage").src = imageSrc;
-      document.getElementById("imageModal").style.display = "flex";
-    }
+  function filterGallery() {
+    let selectedCategory = document.getElementById('categoryFilter').value;
+    let selectedChannel = document.getElementById('channelFilter').value;
 
-    function closeModal() {
-      document.getElementById("imageModal").style.display = "none";
-    }
+    let filteredProducts = products.filter(p => 
+      (selectedCategory === "" || p.categoria === selectedCategory) &&
+      (selectedChannel === "" || p.canal === selectedChannel)
+    );
 
-    function createFilterOptions(options, selectId) {
-      let filterSelect = document.getElementById(selectId);
-      options.forEach(option => {
-        let opt = document.createElement('option');
-        opt.value = option;
-        opt.textContent = option;
-        filterSelect.appendChild(opt);
-      });
-    }
+    createGallery(filteredProducts);
+  }
+</script>
 
-    function filterGallery() {
-      let selectedCategory = document.getElementById('categoryFilter').value;
-      let selectedChannel = document.getElementById('channelFilter').value;
-
-      let filteredProducts = products.filter(p => 
-        (selectedCategory === "" || p.categoria === selectedCategory) &&
-        (selectedChannel === "" || p.canal === selectedChannel)
-      );
-
-      createGallery(filteredProducts);
-    }
-
-    fetchProducts();
-  </script>
 </body>
 </html>
