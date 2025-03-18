@@ -1,5 +1,5 @@
 async function loadProducts() {
-    const url = "https://script.google.com/macros/s/AKfycbykn4T9DlKGmg_PjP1DnIWx5EqfrNtVccKNc0KkrM6V5tY5ftid5Knuu_TdKRfYL63hKQ/exec"; // Reemplaza con tu URL de Apps Script
+    const url = "https://script.google.com/macros/s/AKfycbz0gv2lfYXmUcNwU289ciNfSCG3SkDzuSlvRv5Th8xAHJ6znTYzdBGoFISqgr5vWiuT7A/exec"; // Reemplaza con tu URL de Apps Script
     try {
         let response = await fetch(url);
         let data = await response.json();
