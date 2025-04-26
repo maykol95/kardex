@@ -2,14 +2,19 @@
 <html>
 <head>
   <title>Galería de Productos</title>
+</head>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <style>
   /* Ajustes generales */
   html, body {
     height: 100%;
     margin: 0;
     padding: 0;
+    overflow: hidden;
     width: 100%;
+    font-family: Poppins,Source Sans Pro,-apple-system,BlinkMacSystemFont,sans-serif
   }
 
   .album {
@@ -26,7 +31,7 @@
     height: 100%;
   }
 
-  /* Barra lateral */
+  /* Estilos de la barra lateral */
   .sidebar {
     width: 250px;
     min-width: 250px;
@@ -38,36 +43,39 @@
     height: 100%;
   }
 
-  /* Galería */
+  /* Estilos de la galería */
   #gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Se aumentó el min ancho a 300px */
     gap: 5px;
     width: 100%;
     max-width: 1500px;
     margin: auto;
-    height: calc(100vh - 10rem);
+    height: calc(100vh - 5rem);
     overflow-y: auto;
     padding-right: 5px;
   }
 
-  /* Tarjetas */
+  /* Estilos de las tarjetas */
   .card {
     width: 100%;
-    min-width: 300px;
-    max-width: 350px;
+    min-width: 300px; /* Evita que las tarjetas sean demasiado estrechas */
+    max-width: 350px; /* Opcional: limita el ancho máximo */
     min-height: 350px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    align-self: stretch;
   }
 
+  /* Imagen dentro de la tarjeta */
   .bd-placeholder-img {
     width: 100%;
     height: 250px;
     object-fit: cover;
   }
 
+  /* Cuerpo de la tarjeta */
   .card-body {
     padding: 1rem;
     flex-grow: 1;
@@ -76,8 +84,10 @@
     justify-content: center;
   }
 
+  /* Texto dentro de la tarjeta */
   .card-text {
     text-align: center;
+    text-transform: capitalize;
     font-size: 13px;
   }
 
@@ -87,36 +97,14 @@
 
   .stock-text {
     text-align: center;
+    text-transform: capitalize;
     font-size: 12px;
   }
-
   .stock-text span {
     font-weight: bold;
   }
+    /* 📌 Modal */
 
-  /* Modal */
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    justify-content: center;
-    align-items: center;
-  }
-
-  .modal-content {
-    max-width: 40%;
-  }
-
-  .modal-content img {
-    width: 100%;
-    height: 80%;
-    border-radius: 5px;
-  }
 
   .close {
     position: absolute;
@@ -126,24 +114,82 @@
     color: white;
     cursor: pointer;
   }
-
-  /* Responsive */
-  @media (max-width: 1200px) { #gallery { grid-template-columns: repeat(4, 1fr); } }
-  @media (max-width: 992px) { #gallery { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 768px) { #gallery { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 576px) { 
-    #gallery { grid-template-columns: repeat(1, 1fr); } 
-    .sidebar { display: none; } 
+  .btn-primary{
+    background: rgb(84, 146, 199)
   }
-</style>
-</head>
-<body>
 
-  <div class="album py-5 bg-light">
+  /* 📌 RESPONSIVE: Ajustar el número de tarjetas por fila según el tamaño de pantalla */
+  @media (max-width: 1200px) {
+    #gallery {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  @media (max-width: 992px) {
+    #gallery {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  @media (max-width: 768px) {
+    #gallery {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 576px) {
+    #gallery {
+      grid-template-columns: repeat(1, 1fr);
+    }
+    .sidebar {
+      display: none;
+    }
+  }
+  
+
+    #tableView {
+      display: none;
+      overflow-y: auto;
+      height: calc(100vh - 10rem);
+      width: 100%;
+    }
+    .table-img-btn {
+      border: none;
+      background: none;
+      padding: 0;
+      cursor: pointer;
+      color: #007bff;
+    }
+
+    #imageModal .modal-body img {
+      
+      object-fit: container;
+    }
+
+    #imageModal .text-container {
+      padding: 1rem;
+      overflow-y: auto;
+    }
+
+</style>
+
+<body>
+  <header style="background: linear-gradient(90deg, rgb(84, 146, 199) 0%, rgb(44, 60, 75) 100%); height:84px;">
+    <div class="px-3 py-2 text-white">
+      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+        <div class="col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+          <h1 style="width: 800px;"><strong>Kardex Diageo Overall</strong></h1>
+        </div>
+        <div class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+          <input class="form-control" id="nameFilter2" type="search" placeholder="Buscar por nombre" aria-label="search" style="width: 400px;" onchange="searchProducts()">
+        </div>
+        <button class="btn btn-light" onclick="toggleView()">Cambiar Vista</button>
+      </div>
+    </div>
+  </header>
+  
+  <div class="album py-3 bg-light">
     <div class="container">
       <div class="sidebar">
         <h5>Filtrar por:</h5>
-        <label for="channelFilter"><strong>Canal:</strong></label>
+        <label for="channelFilter" style="margin-top: 10px;"><strong>Canal:</strong></label>
         <select id="channelFilter" class="form-select" onchange="filterGallery()">
           <option value="">Todos</option>
         </select>
@@ -152,104 +198,427 @@
           <option value="">Todas</option>
         </select>
       </div>
-      <div id="gallery" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3"></div>
+  
+      <div style="width: 100%;">
+        <div id="gallery" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3"></div>
+  
+        <div id="tableView" style="display: none;">
+          <button class="btn btn-success" onclick="downloadTableAsExcel()">Descargar Excel</button>
+          <table class="table table-bordered">
+            <thead class="table table-dark">
+              <tr>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Canal</th>
+                <th>Categoría</th>
+                <th>Stock</th>
+              </tr>
+            </thead>
+            <tbody id="productTableBody"></tbody>
+          </table>
+        </div>
+  
+        <div id="tableView2" style="display: none;">
+          <button class="btn btn-success" onclick="downloadTableAsExcel()">Descargar Excel</button>
+          <table class="table table-bordered">
+            <thead class="table table-dark">
+              <tr>
+                <th>Imagen</th>
+                <th>id</th>
+                <th>Nombre</th>
+                <th>Canal</th>
+                <th>Categoría</th>
+                <th>Stock</th>
+                <th>Alto</th>
+                <th>Ancho</th>
+              </tr>
+            </thead>
+            <tbody id="productTableBody2"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
-
-  <!-- Modal -->
-  <div id="imageModal" class="modal" onclick="closeModal()">
-    <span class="close" onclick="closeModal()">&times;</span>
-    <div class="modal-content">
-      <img id="modalImage" src="" alt="Imagen ampliada">
+  
+  <!-- Modal para mostrar imagen -->
+  <div id="imageModal" class="modal" onclick="closeImageModal()">
+    <span class="close" onclick="closeImageModal()">&times;</span>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content" style="width:1000px;">
+        <div class="modal-body" style="width:1000px;">
+          <div class="row">
+            <div class="col" style="width:500px;">
+              <img id="modalImage" src="" width="100%" style="max-height:100%;" alt="Imagen de ejemplo">
+            </div>
+            <div class="col">
+              <div class="text-container">
+                <div class="row">
+                  <h5 id="imageModalLabel"></h5>
+                </div>
+                <div class="row">
+                  <p id="peso"></p>
+                </div>
+                <div class="row">
+                  <p id="alto"></p>
+                </div>
+                <div class="row">
+                  <p id="ancho"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> 
+    </div> 
+  </div> 
+  
+  <!-- Modal para agregar cantidad -->
+  <div id="addModal" class="modal" onclick="closeAddModal()">
+    <span class="close" onclick="closeAddModal()">&times;</span>
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content" onclick="event.stopPropagation();">
+        <div class="modal-header">
+          <h5 class="modal-title text-align-center" id="modalProductName"></h5>
+        </div>
+        <div class="input-group mb-3">
+          <span class="input-group-text">Cantidad</span>
+          <input class="form-control auto" type="number" id="modalQuantity" value="1" min="1" />
+        </div>
+        <div class="modal-footer">
+          <div style="margin-top: 10px;">
+            <button class="btn btn-success" id="addToCartBtn">Agregar al carrito</button>
+            <button class="btn btn-secondary" onclick="closeAddModal()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal del carrito -->
+  <div id="cartModal" class="modal" onclick="closeCart()">
+    <span class="close" onclick="closeCart()">&times;</span>
+    <div class="modal-content" onclick="event.stopPropagation();">
+      <h5 class="modal-title">Carrito</h5>
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Canal</th>
+            <th>Categoría</th>
+            <th>Cantidad</th>
+          </tr>
+        </thead>
+        <tbody id="cartItems"></tbody>
+      </table>
+      <div class="modal-footer">
+        <button class="btn btn-primary mt-3" onclick="openRequestModal()">Completar Solicitud</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal de solicitud -->
+  <div id="requestModal" class="modal" onclick="closeRequestModal()">
+    <span class="close" onclick="closeRequestModal()">&times;</span>
+    <div class="modal-content" onclick="event.stopPropagation();">
+      <h5>Formulario de Solicitud</h5>
+      <form>
+        <div class="row">
+          <div class="col mb-3">
+            <label for="name" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="name">
+          </div>
+          <div class="col mb-3">
+            <label for="ruc" class="form-label">RUC</label>
+            <input type="number" class="form-control" id="ruc" maxlength="11">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">Correo electrónico</label>
+          <input type="email" class="form-control" id="email">
+        </div>
+        <button type="submit" class="btn btn-success">Enviar</button>
+      </form>
     </div>
   </div>
 
 <script>
-  let products = [];
-
-  // URL de Google Apps Script
-  const apiUrl = "https://script.google.com/macros/s/AKfycbwImHMl2rmLyoeKYzJ49zw0JCjmVGCXLx_mhSdJbumP87qO0HYDTmOHJPKvlO8L9jp9/exec";
-
-  // Obtener datos desde Google Apps Script
-  fetch(apiUrl)
-    .then(response => response.json())
-    .then(data => {
-      products = data.productos;
-      createGallery(products);
-      createFilterOptions(data.categorias, "categoryFilter");
-      createFilterOptions([...new Set(products.map(p => p.canal))], "channelFilter");
-    })
-    .catch(error => console.error("Error al obtener datos:", error));
-
-  function createGallery(filteredProducts) {
-    let gallery = document.getElementById('gallery');
-    gallery.innerHTML = '';
-
-    filteredProducts.forEach(product => {
-      let col = document.createElement('div');
-      col.className = 'col';
-      let card = document.createElement('div');
-      card.className = 'card shadow-sm';
+      let products = [];
+      let cart = [];
       
-      let img = document.createElement('img');
-      img.className = 'bd-placeholder-img card-img-top';
-      img.onclick = function() { openModal(product.imagen); };
-      img.src = product.imagen;
-      img.onerror = function() {
-        img.src = 'https://livetrade-qa.s3.amazonaws.com/IMG2025031715033331_noimage-705x705.jpg';
-      };
-      
-      let cardBody = document.createElement('div');
-      cardBody.className = 'card-body';
-
-      let cardText = document.createElement('p');
-      cardText.className = 'card-text';
-      cardText.innerHTML = `${product.nombre}`;
-
-      let stockText = document.createElement('p');
-      stockText.className = 'stock-text';
-      stockText.innerHTML = `Canal: <span>${product.canal}</span> `  + `Stock: <span>${product.stock}</span>`;
-      
-      cardBody.appendChild(cardText);
-      cardBody.appendChild(stockText);
-      card.appendChild(img);
-      card.appendChild(cardBody);
-      col.appendChild(card);
-      gallery.appendChild(col);
+      // URL de Google Apps Script
+      const apiUrl = "https://script.google.com/macros/s/AKfycbwImHMl2rmLyoeKYzJ49zw0JCjmVGCXLx_mhSdJbumP87qO0HYDTmOHJPKvlO8L9jp9/exec";
+    
+      // Obtener datos desde Google Apps Script
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          products = data.productos;
+          populateTable(products);
+          populateTable2(products);
+          createGallery(products);
+          createFilterOptions([...new Set(products.map(p => p.categoria))], "categoryFilter");
+          createFilterOptions([...new Set(products.map(p => p.canal))], "channelFilter");
+        })
+        .catch(error => console.error("Error al obtener datos:", error));
+    
+      function createGallery(filteredProducts) {
+        let gallery = document.getElementById('gallery');
+        gallery.innerHTML = '';
+    
+        filteredProducts.forEach(product => {
+          let col = document.createElement('div');
+          col.className = 'col';
+          let card = document.createElement('div');
+          card.className = 'card shadow-sm';
+    
+          let img = document.createElement('img');
+          img.className = 'bd-placeholder-img card-img-top';
+          img.onclick = function() { openImageModal(product); };
+          img.src = product.imagen;
+          img.onerror = function() {
+            img.src = 'https://livetrade-qa.s3.amazonaws.com/IMG2025031715033331_noimage-705x705.jpg';
+          };
+    
+          let cardBody = document.createElement('div');
+          cardBody.className = 'card-body';
+    
+          let cardText = document.createElement('p');
+          cardText.className = 'card-text';
+          cardText.innerHTML = `${product.nombre}`;
+    
+          let stockText = document.createElement('p');
+          stockText.className = 'stock-text';
+          stockText.innerHTML = `Canal: <span>${product.canal}</span> Stock: <span>${product.stock}</span>`;
+    
+    
+          cardBody.appendChild(cardText);
+          cardBody.appendChild(stockText);
+          card.appendChild(img);
+          card.appendChild(cardBody);
+          col.appendChild(card);
+          gallery.appendChild(col);
+        });
+      }
+    
+      function toggleView() {
+        const gallery = document.getElementById('gallery');
+        const table = document.getElementById('tableView');
+        if(gallery.style.display==='grid'){
+          gallery.style.display='none';
+          table.style.display='block';
+        }else{
+          gallery.style.display='grid';
+          table.style.display='none';
+        }
+      }
+    
+    let currentTableProducts = []; // nuevo arreglo para la tabla filtrada
+    
+    function populateTable(products) {
+      currentTableProducts = products; // actualizamos productos visibles
+      const tbody = document.getElementById('productTableBody');
+      tbody.innerHTML = '';
+      products.forEach((product, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><button class="table-img-btn" onclick="openImageModalByIndex(${index})">Ver Imagen</button></td>
+          <td>${product.nombre}</td>
+          <td>${product.canal}</td>
+          <td>${product.categoria}</td>
+          <td>${product.stock}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+    
+    
+    function openImageModalByIndex(index) {
+      const product = currentTableProducts[index];
+      openImageModal(product);
+    }
+    
+    
+      function populateTable2(products) {
+        const tbody = document.getElementById('productTableBody2');
+        tbody.innerHTML = '';
+        products.forEach(product => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${product.imagen}</td>
+            <td>${product.id}</td>
+            <td>${product.nombre}</td>
+            <td>${product.canal}</td>
+            <td>${product.categoria}</td>
+            <td>${product.stock}</td>
+            <td>${product.alto}</td>
+            <td>${product.ancho}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      }
+    
+    
+      function openImageModal(product) {
+        document.getElementById("modalImage").src = product.imagen;
+        document.getElementById("modalImage").onerror = function() {
+        document.getElementById("modalImage").src = 'https://livetrade-qa.s3.amazonaws.com/IMG2025031715033331_noimage-705x705.jpg';};
+        document.getElementById("imageModalLabel").innerHTML=`<strong>${product.nombre}</strong>`;
+        document.getElementById("peso").innerHTML=`Peso: <strong>${product.peso}</strong> Kg.`;
+        document.getElementById("alto").innerHTML=`Alto: <strong>${product.alto}</strong> metros.`;
+        document.getElementById("ancho").innerHTML=`ancho: <strong>${product.ancho}</strong> metros.`;
+        document.getElementById("imageModal").style.display = "flex";
+    
+      }
+    
+      function closeImageModal() {
+        document.getElementById("imageModal").style.display = "none";
+      }
+    
+      function createFilterOptions(options, selectId) {
+        let filterSelect = document.getElementById(selectId);
+        filterSelect.innerHTML = '<option value="">Todos</option>';
+        options.forEach(option => {
+          let opt = document.createElement('option');
+          opt.value = option;
+          opt.textContent = option;
+          filterSelect.appendChild(opt);
+        });
+      }
+    
+      function filterGallery() {
+        const selectedCategory = document.getElementById('categoryFilter').value;
+        const selectedChannel = document.getElementById('channelFilter').value;
+        const nameSearch = document.getElementById('nameFilter2').value.toLowerCase();
+        const filteredProducts = products.filter(p =>
+          (!selectedCategory || p.categoria === selectedCategory) &&
+          (!selectedChannel || p.canal === selectedChannel) &&
+          (!nameSearch || p.nombre.toLowerCase().includes(nameSearch))
+        );
+        createGallery(filteredProducts);
+        populateTable(filteredProducts);
+        populateTable2(filteredProducts);
+        updateDependentFilters(selectedCategory, selectedChannel,nameSearch);
+      }
+    
+      function searchProducts() {
+      const query = document.getElementById("nameFilter2").value.toLowerCase();
+      const filteredProducts = products.filter(p =>
+        p.nombre.toLowerCase().includes(query)
+      );
+      createGallery(filteredProducts);
+      populateTable(filteredProducts);
+      document.getElementById("nameFilter2").addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        searchProducts();
+      }
     });
-  }
-
-  function openModal(imageSrc) {
-    document.getElementById("modalImage").src = imageSrc;
-    document.getElementById("imageModal").style.display = "flex";
-  }
-
-  function closeModal() {
-    document.getElementById("imageModal").style.display = "none";
-  }
-
-  function createFilterOptions(options, selectId) {
-    let filterSelect = document.getElementById(selectId);
-    options.forEach(option => {
-      let opt = document.createElement('option');
-      opt.value = option;
-      opt.textContent = option;
-      filterSelect.appendChild(opt);
-    });
-  }
-
-  function filterGallery() {
-    let selectedCategory = document.getElementById('categoryFilter').value;
-    let selectedChannel = document.getElementById('channelFilter').value;
-
-    let filteredProducts = products.filter(p => 
-      (selectedCategory === "" || p.categoria === selectedCategory) &&
-      (selectedChannel === "" || p.canal === selectedChannel)
-    );
-
-    createGallery(filteredProducts);
-  }
-</script>
-
+    }
+    
+      function updateDependentFilters(selectedCategory, selectedChannel) {
+        let categorySet = new Set();
+        let channelSet = new Set();
+    
+        products.forEach(p => {
+          if (selectedChannel === "" || p.canal === selectedChannel) {
+            categorySet.add(p.categoria);
+          }
+          if (!selectedCategory || p.categoria === selectedCategory) {
+            channelSet.add(p.canal);
+          }
+        });
+    
+        let categoryFilter = document.getElementById('categoryFilter');
+        categoryFilter.innerHTML = '<option value="">Todas</option>';
+        categorySet.forEach(categoria => {
+          let option = document.createElement('option');
+          option.value = categoria;
+          option.textContent = categoria;
+          if (categoria === selectedCategory) option.selected = true;
+          categoryFilter.appendChild(option);
+        });
+    
+        let channelFilter = document.getElementById('channelFilter');
+        channelFilter.innerHTML = '<option value="">Todos</option>';
+        channelSet.forEach(canal => {
+          let option = document.createElement('option');
+          option.value = canal;
+          option.textContent = canal;
+          if (canal === selectedChannel) option.selected = true;
+          channelFilter.appendChild(option);
+        });
+      }
+    
+      function openAddModal(product) {
+        const modal = document.getElementById('addModal');
+        document.getElementById('modalProductName').textContent = product.nombre;
+        const input = document.getElementById('modalQuantity');
+        input.value = 1;
+        input.max = product.stock;
+        input.min = 1;
+        input.dataset.productId = product.id;
+        input.dataset.product = JSON.stringify(product);
+        modal.style.display = 'flex';
+    
+        document.getElementById('addToCartBtn').onclick = () => {
+          const quantity = parseInt(input.value);
+          const productObj = JSON.parse(input.dataset.product);
+          if (quantity >= 1 && quantity <= product.stock) {
+            cart.push({ ...productObj, cantidad: quantity });
+            modal.style.display = 'none';
+            renderCart();
+          } else {
+            alert('Cantidad inválida.');
+          }
+        };
+      }
+    
+      function closeAddModal() {
+        document.getElementById('addModal').style.display = 'none';
+      }
+    
+      function openCart() {
+        document.getElementById('cartModal').style.display = 'flex';
+        renderCart();
+      }
+    
+      function closeCart() {
+        document.getElementById('cartModal').style.display = 'none';
+      }
+    
+      function renderCart() {
+        const tbody = document.getElementById('cartItems');
+        tbody.innerHTML = '';
+        cart.forEach(p => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${p.nombre}</td>
+            <td>${p.canal}</td>
+            <td>${p.categoria}</td>
+            <td>${p.cantidad}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+    
+      function openRequestModal() {
+        document.getElementById('requestModal').style.display = 'flex';
+        document.getElementById('cartModal').style.display = 'none';
+      }
+    
+      function closeRequestModal() {
+        document.getElementById('requestModal').style.display = 'none';
+      }
+    
+      function downloadTableAsExcel() {
+        const table = document.querySelector("#productTableBody2").closest("table");
+        const wb = XLSX.utils.table_to_book(table, { sheet: "Stocks" });
+        XLSX.writeFile(wb, "Stocks.xlsx");
+      }
+    
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </body>
 </html>
