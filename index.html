@@ -248,10 +248,10 @@
   <div id="imageModal" class="modal" onclick="closeImageModal()">
     <span class="close" onclick="closeImageModal()">&times;</span>
     <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content" style="width:1000px;">
+      <div class="modal-content" style="width:1000px;" onclick="event.stopPropagation();">
         <div class="modal-body" style="width:1000px;">
           <div class="row">
-            <div class="col" style="width:500px; background: #f1f1f1;" >
+            <div class="col justify-content-center"  style="width:500px; background: #f1f1f1;" >
               <img id="modalImage" src="" alt="Imagen de ejemplo">
             </div>
             <div class="col">
