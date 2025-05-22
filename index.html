@@ -246,38 +246,63 @@
   </div>
   
   <!-- Modal para mostrar imagen -->
-  <div id="imageModal" class="modal" onclick="closeImageModal()">
-    <span class="close" onclick="closeImageModal()">&times;</span>
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content" style="width:1000px;" onclick="event.stopPropagation();">
-        <div class="modal-body" style="width:1000px;">
-          <div class="row">
-            <div class="col justify-content-center"  style="width:500px; background: #f1f1f1;" >
-              <img id="modalImage" src="" alt="Imagen de ejemplo">
-            </div>
-            <div class="col">
-              <div class="text-container">
-                <div class="row">
-                  <h5 id="imageModalLabel"></h5>
-                </div>
-                <div class="row">
-                  <p id="peso"></p>
-                </div>
-                <div class="row">
-                  <p id="alto"></p>
-                </div>
-                <div class="row">
-                  <p id="ancho"></p>
-                <div class="row">
-                  <p id="largo"></p>
-                </div>
-              </div>
+<!-- Modal de Imagen -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="imageModalLabel">Detalle del Producto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row mb-3">
+          <div class="col-md-6 text-center">
+            <img id="modalProductImage" src="" class="img-fluid rounded" alt="Imagen del producto">
+          </div>
+          <div class="col-md-6">
+            <h5 id="modalProductName"></h5>
+            <p><strong>Categoría:</strong> <span id="modalProductCategory"></span></p>
+            <p><strong>Canal:</strong> <span id="modalProductCanal"></span></p>
+            <p><strong>Stock:</strong> <span id="modalProductStock"></span></p>
+            <p><strong>Peso:</strong> <span id="modalProductPeso"></span> kg</p>
+            <p><strong>Alto:</strong> <span id="modalProductAlto"></span> cm</p>
+            <p><strong>Ancho:</strong> <span id="modalProductAncho"></span> cm</p>
+            <p><strong>Largo:</strong> <span id="modalProductLargo"></span> cm</p>
+          </div>
+        </div>
+
+        <!-- Movimientos Relacionados -->
+        <div class="row mb-2" id="movimientosContainer">
+          <div class="col-12">
+            <h6 class="fw-bold">Movimientos del Producto</h6>
+            <div class="table-responsive">
+              <table class="table table-sm table-bordered table-striped">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Producto</th>
+                    <th>Canal</th>
+                    <th>Destino</th>
+                    <th>Ingreso</th>
+                    <th>Salida</th>
+                  </tr>
+                </thead>
+                <tbody id="movimientosBody">
+                  <!-- Se llenará dinámicamente -->
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
-      </div> 
-    </div> 
-  </div> 
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
   
   <!-- Modal para agregar cantidad -->
   <div id="addModal" class="modal" onclick="closeAddModal()">
@@ -351,7 +376,9 @@
 <script>
       let products = [];
       let cart = [];
-      
+      let trazabilidad = [];
+
+
       // URL de Google Apps Script
       const apiUrl = "https://script.google.com/macros/s/AKfycbzozp9uKxugeAKJKoxLTVL4jx1ArMKIg8sUOFupE1wdt6ZPNk67dFYaoN2V41HpwlRH/exec";
     
@@ -360,6 +387,7 @@
         .then(response => response.json())
         .then(data => {
           products = data.productos;
+          trazabilidad = data.trazabilidad;
           populateTable(products);
           populateTable2(products);
           createGallery(products);
@@ -467,16 +495,40 @@
     
     
       function openImageModal(product) {
-        document.getElementById("modalImage").src = product.imagen;
-        document.getElementById("modalImage").onerror = function() {
-        document.getElementById("modalImage").src = 'https://livetrade-qa.s3.amazonaws.com/IMG2025031715033331_noimage-705x705.jpg';};
-        document.getElementById("imageModalLabel").innerHTML=<strong>${product.nombre}</strong>;
-        document.getElementById("peso").innerHTML=Peso: <strong>${product.peso}</strong> Kg.;
-        document.getElementById("alto").innerHTML=Alto: <strong>${product.alto}</strong> metros.;
-        document.getElementById("ancho").innerHTML=Ancho: <strong>${product.ancho}</strong> metros.;
-        document.getElementById("largo").innerHTML=Largo: <strong>${product.largo}</strong> metros.;
-        document.getElementById("imageModal").style.display = "flex";
-    
+        const producto = productos[index];
+        document.getElementById('modalProductImage').src = producto.imagen;
+        document.getElementById('modalProductName').textContent = producto.nombre;
+        document.getElementById('modalProductCategory').textContent = producto.categoria;
+        document.getElementById('modalProductCanal').textContent = producto.canal;
+        document.getElementById('modalProductStock').textContent = producto.stock;
+        document.getElementById('modalProductPeso').textContent = producto.peso;
+        document.getElementById('modalProductAlto').textContent = producto.alto;
+        document.getElementById('modalProductAncho').textContent = producto.ancho;
+        document.getElementById('modalProductLargo').textContent = producto.largo;
+        
+        // Mostrar movimientos relacionados
+        const movimientosBody = document.getElementById('movimientosBody');
+        movimientosBody.innerHTML = ''; // Limpiar
+        
+        const movimientos = trazabilidad.filter(m => m.llave === producto.id);
+        
+        if (movimientos.length > 0) {
+          movimientos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+          movimientos.forEach(mov => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${mov.fecha || ''}</td>
+              <td>${mov.producto || ''}</td>
+              <td>${mov.canal || ''}</td>
+              <td>${mov.direccionDestino || ''}</td>
+              <td>${mov.ingreso || 0}</td>
+              <td>${mov.salida || 0}</td>
+            `;
+            movimientosBody.appendChild(row);
+          });
+        } else {
+          movimientosBody.innerHTML = '<tr><td colspan="6" class="text-center">Sin movimientos encontrados</td></tr>';
+        }
       }
     
       function closeImageModal() {
