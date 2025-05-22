@@ -384,17 +384,32 @@
     
       // Obtener datos desde Google Apps Script
       fetch(apiUrl)
-        .then(response => response.json())
-        .then(data => {
-          productos = data.productos;
-          trazabilidad = data.trazabilidad;
-          populateTable(products);
-          populateTable2(products);
-          createGallery(products);
-          createFilterOptions([...new Set(products.map(p => p.categoria))], "categoryFilter");
-          createFilterOptions([...new Set(products.map(p => p.canal))], "channelFilter");
-        })
-        .catch(error => console.error("Error al obtener datos:", error));
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Estado: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (!data || !data.productos || !data.trazabilidad) {
+          throw new Error("Los datos recibidos son inválidos.");
+        }
+    
+        // Asignación de datos
+        const productos = data.productos;
+        const trazabilidad = data.trazabilidad;
+    
+        // Llamadas a funciones con los datos
+        populateTable(productos);
+        populateTable2(productos);
+        createGallery(productos);
+        createFilterOptions([...new Set(productos.map(p => p.categoria))], "categoryFilter");
+        createFilterOptions([...new Set(productos.map(p => p.canal))], "channelFilter");
+        
+        console.log("Datos cargados correctamente", { productos, trazabilidad });
+      })
+      .catch(error => console.error("Error al obtener datos:", error));
+
     
     function createGallery(filteredProducts) {
         let gallery = document.getElementById('gallery');
