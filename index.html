@@ -386,7 +386,7 @@
       fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
-          products = data.productos;
+          productos = data.productos;
           trazabilidad = data.trazabilidad;
           populateTable(products);
           populateTable2(products);
