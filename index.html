@@ -235,6 +235,7 @@
                 <th>Stock</th>
                 <th>Alto</th>
                 <th>Ancho</th>
+                <th>Largo</th>
               </tr>
             </thead>
             <tbody id="productTableBody2"></tbody>
@@ -267,6 +268,8 @@
                 </div>
                 <div class="row">
                   <p id="ancho"></p>
+                <div class="row">
+                  <p id="largo"></p>
                 </div>
               </div>
             </div>
@@ -456,6 +459,7 @@
             <td>${product.stock}</td>
             <td>${product.alto}</td>
             <td>${product.ancho}</td>
+            <td>${product.alto}</td>
           `;
           tbody.appendChild(row);
         });
@@ -469,7 +473,8 @@
         document.getElementById("imageModalLabel").innerHTML=`<strong>${product.nombre}</strong>`;
         document.getElementById("peso").innerHTML=`Peso: <strong>${product.peso}</strong> Kg.`;
         document.getElementById("alto").innerHTML=`Alto: <strong>${product.alto}</strong> metros.`;
-        document.getElementById("ancho").innerHTML=`ancho: <strong>${product.ancho}</strong> metros.`;
+        document.getElementById("ancho").innerHTML=`Ancho: <strong>${product.ancho}</strong> metros.`;
+        document.getElementById("largo").innerHTML=`Largo: <strong>${product.largo}</strong> metros.`;
         document.getElementById("imageModal").style.display = "flex";
     
       }
