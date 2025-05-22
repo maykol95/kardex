@@ -268,9 +268,29 @@
                 </div>
                 <div class="row">
                   <p id="ancho"></p>
+                </div>
                 <div class="row">
                   <p id="largo"></p>
                 </div>
+                <div class="row mb-2" id="movimientosContainer">
+                    <div class="col-12">
+                      <h6 class="fw-bold">Movimientos del Producto</h6>
+                      <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                          <thead>
+                            <tr>
+                              <th>Fecha</th>
+                              <th>Tipo</th>
+                              <th>Cantidad</th>
+                            </tr>
+                          </thead>
+                          <tbody id="movimientosBody">
+                            <!-- Se llenará dinámicamente -->
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
               </div>
             </div>
           </div>
@@ -442,6 +462,24 @@
     function openImageModalByIndex(index) {
       const product = currentTableProducts[index];
       openImageModal(product);
+      // Mostrar movimientos relacionados
+        const movimientosBody = document.getElementById('movimientosBody');
+        movimientosBody.innerHTML = ''; // Limpiar
+        
+        const movimientos = trazabilidad.filter(m => m.llave === producto.id);
+        if (movimientos.length > 0) {
+          movimientos.forEach(mov => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${mov.fecha || ''}</td>
+              <td>${mov.tipo || ''}</td>
+              <td>${mov.cantidad || ''}</td>
+            `;
+            movimientosBody.appendChild(row);
+          });
+        } else {
+          movimientosBody.innerHTML = '<tr><td colspan="3" class="text-center">Sin movimientos</td></tr>';
+        }
     }
     
     
