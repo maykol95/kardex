@@ -396,7 +396,7 @@
         })
         .catch(error => console.error("Error al obtener datos:", error));
     
-      function createGallery(filteredProducts) {
+    function createGallery(filteredProducts) {
         let gallery = document.getElementById('gallery');
         gallery.innerHTML = '';
     
@@ -419,15 +419,20 @@
     
           let cardText = document.createElement('p');
           cardText.className = 'card-text';
-          cardText.innerHTML = ${product.nombre};
+          cardText.innerHTML = `${product.nombre}`;
     
           let stockText = document.createElement('p');
           stockText.className = 'stock-text';
-          stockText.innerHTML = Canal: <span>${product.canal}</span> Stock: <span>${product.stock}</span>;
+          stockText.innerHTML = `Canal: <span>${product.canal}</span> Stock: <span>${product.stock}</span>`;
     
+          let addButton = document.createElement('button');
+          addButton.className = 'btn btn-primary';
+          addButton.textContent = 'Agregar';
+          addButton.onclick = function() { openAddModal(product); };
     
           cardBody.appendChild(cardText);
           cardBody.appendChild(stockText);
+          cardBody.appendChild(addButton);
           card.appendChild(img);
           card.appendChild(cardBody);
           col.appendChild(card);
@@ -447,38 +452,29 @@
         }
       }
     
-    let currentTableProducts = []; // nuevo arreglo para la tabla filtrada
-    
-    function populateTable(products) {
-      currentTableProducts = products; // actualizamos productos visibles
-      const tbody = document.getElementById('productTableBody');
-      tbody.innerHTML = '';
-      products.forEach((product, index) => {
-        const row = document.createElement('tr');
-        row.innerHTML = 
-          <td><button class="table-img-btn" onclick="openImageModalByIndex(${index})">Ver Imagen</button></td>
-          <td>${product.nombre}</td>
-          <td>${product.canal}</td>
-          <td>${product.categoria}</td>
-          <td>${product.stock}</td>
-        ;
-        tbody.appendChild(row);
-      });
-    }
-    
-    
-    function openImageModalByIndex(index) {
-      const product = currentTableProducts[index];
-      openImageModal(product);
-    }
-    
+      function populateTable(products) {
+        const tbody = document.getElementById('productTableBody');
+        tbody.innerHTML = '';
+        products.forEach(product => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td><button class="table-img-btn" onclick="openImageModal('${product.imagen}')">Ver Imagen</button></td>
+            <td>${product.nombre}</td>
+            <td>${product.canal}</td>
+            <td>${product.categoria}</td>
+            <td>${product.stock}</td>
+            <td><button class="btn btn-primary btn-sm" onclick='openAddModal(${JSON.stringify(product)})'>Agregar</button></td>
+          `;
+          tbody.appendChild(row);
+        });
+      }
     
       function populateTable2(products) {
         const tbody = document.getElementById('productTableBody2');
         tbody.innerHTML = '';
         products.forEach(product => {
           const row = document.createElement('tr');
-          row.innerHTML = 
+          row.innerHTML = `
             <td>${product.imagen}</td>
             <td>${product.id}</td>
             <td>${product.nombre}</td>
@@ -488,47 +484,23 @@
             <td>${product.alto}</td>
             <td>${product.ancho}</td>
             <td>${product.largo}</td>
-          ;
+          `;
           tbody.appendChild(row);
         });
       }
     
     
       function openImageModal(product) {
-        const producto = productos[index];
-        document.getElementById('modalProductImage').src = producto.imagen;
-        document.getElementById('modalProductName').textContent = producto.nombre;
-        document.getElementById('modalProductCategory').textContent = producto.categoria;
-        document.getElementById('modalProductCanal').textContent = producto.canal;
-        document.getElementById('modalProductStock').textContent = producto.stock;
-        document.getElementById('modalProductPeso').textContent = producto.peso;
-        document.getElementById('modalProductAlto').textContent = producto.alto;
-        document.getElementById('modalProductAncho').textContent = producto.ancho;
-        document.getElementById('modalProductLargo').textContent = producto.largo;
-        
-        // Mostrar movimientos relacionados
-        const movimientosBody = document.getElementById('movimientosBody');
-        movimientosBody.innerHTML = ''; // Limpiar
-        
-        const movimientos = trazabilidad.filter(m => m.llave === producto.id);
-        
-        if (movimientos.length > 0) {
-          movimientos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-          movimientos.forEach(mov => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td>${mov.fecha || ''}</td>
-              <td>${mov.producto || ''}</td>
-              <td>${mov.canal || ''}</td>
-              <td>${mov.direccionDestino || ''}</td>
-              <td>${mov.ingreso || 0}</td>
-              <td>${mov.salida || 0}</td>
-            `;
-            movimientosBody.appendChild(row);
-          });
-        } else {
-          movimientosBody.innerHTML = '<tr><td colspan="6" class="text-center">Sin movimientos encontrados</td></tr>';
-        }
+        document.getElementById("modalImage").src = product.imagen;
+        document.getElementById("modalImage").onerror = function() {
+        document.getElementById("modalImage").src = 'https://livetrade-qa.s3.amazonaws.com/IMG2025031715033331_noimage-705x705.jpg';};
+        document.getElementById("imageModalLabel").innerHTML=product.nombre;
+        document.getElementById("peso").innerHTML=`Peso: <strong>${product.peso}</strong> Kg.`;
+        document.getElementById("alto").innerHTML=`Alto: <strong>${product.alto}</strong> metros.`;
+        document.getElementById("ancho").innerHTML=`ancho: <strong>${product.ancho}</strong> metros.`;
+        document.getElementById("largo").innerHTML=`Largo: <strong>${product.largo}</strong> metros.`;
+        document.getElementById("imageModal").style.display = "flex";
+    
       }
     
       function closeImageModal() {
@@ -652,12 +624,12 @@
         tbody.innerHTML = '';
         cart.forEach(p => {
           const tr = document.createElement('tr');
-          tr.innerHTML = 
+          tr.innerHTML = `
             <td>${p.nombre}</td>
             <td>${p.canal}</td>
             <td>${p.categoria}</td>
             <td>${p.cantidad}</td>
-          ;
+          `;
           tbody.appendChild(tr);
         });
       }
