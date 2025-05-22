@@ -411,262 +411,265 @@
       .catch(error => console.error("Error al obtener datos:", error));
 
     
-    function createGallery(filteredProducts) {
-        let gallery = document.getElementById('gallery');
-        gallery.innerHTML = '';
-    
-        filteredProducts.forEach(product => {
-          let col = document.createElement('div');
-          col.className = 'col';
-          let card = document.createElement('div');
-          card.className = 'card shadow-sm';
-    
-          let img = document.createElement('img');
-          img.className = 'bd-placeholder-img card-img-top';
-          img.onclick = function() { openImageModal(product); };
-          img.src = product.imagen;
-          img.onerror = function() {
-            img.src = 'https://livetrade-qa.s3.amazonaws.com/IMG2025031715033331_noimage-705x705.jpg';
-          };
-    
-          let cardBody = document.createElement('div');
-          cardBody.className = 'card-body';
-    
-          let cardText = document.createElement('p');
-          cardText.className = 'card-text';
-          cardText.innerHTML = `${product.nombre}`;
-    
-          let stockText = document.createElement('p');
-          stockText.className = 'stock-text';
-          stockText.innerHTML = `Canal: <span>${product.canal}</span> Stock: <span>${product.stock}</span>`;
-    
-          let addButton = document.createElement('button');
-          addButton.className = 'btn btn-primary';
-          addButton.textContent = 'Agregar';
-          addButton.onclick = function() { openAddModal(product); };
-    
-          cardBody.appendChild(cardText);
-          cardBody.appendChild(stockText);
-          cardBody.appendChild(addButton);
-          card.appendChild(img);
-          card.appendChild(cardBody);
-          col.appendChild(card);
-          gallery.appendChild(col);
-        });
+  function createGallery(filteredProducts) {
+    let gallery = document.getElementById('gallery');
+    gallery.innerHTML = '';
+
+    filteredProducts.forEach(product => {
+      let col = document.createElement('div');
+      col.className = 'col';
+      let card = document.createElement('div');
+      card.className = 'card shadow-sm';
+
+      let img = document.createElement('img');
+      img.className = 'bd-placeholder-img card-img-top';
+      img.onclick = function() { openImageModal(product); };
+      img.src = product.imagen;
+      img.onerror = function() {
+        img.src = 'https://livetrade-qa.s3.amazonaws.com/IMG2025031715033331_noimage-705x705.jpg';
+      };
+
+      let cardBody = document.createElement('div');
+      cardBody.className = 'card-body';
+
+      let cardText = document.createElement('p');
+      cardText.className = 'card-text';
+      cardText.innerHTML = `${product.nombre}`;
+
+      let stockText = document.createElement('p');
+      stockText.className = 'stock-text';
+      stockText.innerHTML = `Canal: <span>${product.canal}</span> Stock: <span>${product.stock}</span>`;
+
+
+      cardBody.appendChild(cardText);
+      cardBody.appendChild(stockText);
+      card.appendChild(img);
+      card.appendChild(cardBody);
+      col.appendChild(card);
+      gallery.appendChild(col);
+    });
+  }
+
+  function toggleView() {
+    const gallery = document.getElementById('gallery');
+    const table = document.getElementById('tableView');
+    if(gallery.style.display==='grid'){
+      gallery.style.display='none';
+      table.style.display='block';
+    }else{
+      gallery.style.display='grid';
+      table.style.display='none';
+    }
+  }
+
+let currentTableProducts = []; // nuevo arreglo para la tabla filtrada
+
+function populateTable(products) {
+  currentTableProducts = products; // actualizamos productos visibles
+  const tbody = document.getElementById('productTableBody');
+  tbody.innerHTML = '';
+  products.forEach((product, index) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><button class="table-img-btn" onclick="openImageModalByIndex(${index})">Ver Imagen</button></td>
+      <td>${product.nombre}</td>
+      <td>${product.canal}</td>
+      <td>${product.categoria}</td>
+      <td>${product.stock}</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+
+function openImageModalByIndex(index) {
+  const product = currentTableProducts[index];
+  openImageModal(product);
+}
+
+
+  function populateTable2(products) {
+    const tbody = document.getElementById('productTableBody2');
+    tbody.innerHTML = '';
+    products.forEach(product => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${product.imagen}</td>
+        <td>${product.id}</td>
+        <td>${product.nombre}</td>
+        <td>${product.canal}</td>
+        <td>${product.categoria}</td>
+        <td>${product.stock}</td>
+        <td>${product.alto}</td>
+        <td>${product.ancho}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+
+  function openImageModal(product) {
+    document.getElementById("modalImage").src = product.imagen;
+    document.getElementById("modalImage").onerror = function() {
+    document.getElementById("modalImage").src = 'https://livetrade-qa.s3.amazonaws.com/IMG2025031715033331_noimage-705x705.jpg';};
+    document.getElementById("imageModalLabel").innerHTML=`<strong>${product.nombre}</strong>`;
+    document.getElementById("peso").innerHTML=`Peso: <strong>${product.peso}</strong> Kg.`;
+    document.getElementById("alto").innerHTML=`Alto: <strong>${product.alto}</strong> metros.`;
+    document.getElementById("ancho").innerHTML=`ancho: <strong>${product.ancho}</strong> metros.`;
+    document.getElementById("imageModal").style.display = "flex";
+
+  }
+
+  function closeImageModal() {
+    document.getElementById("imageModal").style.display = "none";
+  }
+
+  function createFilterOptions(options, selectId) {
+    let filterSelect = document.getElementById(selectId);
+    filterSelect.innerHTML = '<option value="">Todos</option>';
+    options.forEach(option => {
+      let opt = document.createElement('option');
+      opt.value = option;
+      opt.textContent = option;
+      filterSelect.appendChild(opt);
+    });
+  }
+
+  function filterGallery() {
+    const selectedCategory = document.getElementById('categoryFilter').value;
+    const selectedChannel = document.getElementById('channelFilter').value;
+    const nameSearch = document.getElementById('nameFilter2').value.toLowerCase();
+    const filteredProducts = products.filter(p =>
+      (!selectedCategory || p.categoria === selectedCategory) &&
+      (!selectedChannel || p.canal === selectedChannel) &&
+      (!nameSearch || p.nombre.toLowerCase().includes(nameSearch))
+    );
+    createGallery(filteredProducts);
+    populateTable(filteredProducts);
+    populateTable2(filteredProducts);
+    updateDependentFilters(selectedCategory, selectedChannel,nameSearch);
+  }
+
+  function searchProducts() {
+  const query = document.getElementById("nameFilter2").value.toLowerCase();
+  const filteredProducts = products.filter(p =>
+    p.nombre.toLowerCase().includes(query)
+  );
+  createGallery(filteredProducts);
+  populateTable(filteredProducts);
+  document.getElementById("nameFilter2").addEventListener("keydown", function(event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    searchProducts();
+  }
+});
+}
+
+  function updateDependentFilters(selectedCategory, selectedChannel) {
+    let categorySet = new Set();
+    let channelSet = new Set();
+
+    products.forEach(p => {
+      if (selectedChannel === "" || p.canal === selectedChannel) {
+        categorySet.add(p.categoria);
       }
-    
-      function toggleView() {
-        const gallery = document.getElementById('gallery');
-        const table = document.getElementById('tableView');
-        if(gallery.style.display==='grid'){
-          gallery.style.display='none';
-          table.style.display='block';
-        }else{
-          gallery.style.display='grid';
-          table.style.display='none';
-        }
-      }
-    
-      function populateTable(products) {
-        const tbody = document.getElementById('productTableBody');
-        tbody.innerHTML = '';
-        products.forEach(product => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td><button class="table-img-btn" onclick="openImageModal('${product.imagen}')">Ver Imagen</button></td>
-            <td>${product.nombre}</td>
-            <td>${product.canal}</td>
-            <td>${product.categoria}</td>
-            <td>${product.stock}</td>
-            <td><button class="btn btn-primary btn-sm" onclick='openAddModal(${JSON.stringify(product)})'>Agregar</button></td>
-          `;
-          tbody.appendChild(row);
-        });
-      }
-    
-      function populateTable2(products) {
-        const tbody = document.getElementById('productTableBody2');
-        tbody.innerHTML = '';
-        products.forEach(product => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${product.imagen}</td>
-            <td>${product.id}</td>
-            <td>${product.nombre}</td>
-            <td>${product.canal}</td>
-            <td>${product.categoria}</td>
-            <td>${product.stock}</td>
-            <td>${product.alto}</td>
-            <td>${product.ancho}</td>
-            <td>${product.largo}</td>
-          `;
-          tbody.appendChild(row);
-        });
-      }
-    
-    
-      function openImageModal(product) {
-        document.getElementById("modalImage").src = product.imagen;
-        document.getElementById("modalImage").onerror = function() {
-        document.getElementById("modalImage").src = 'https://livetrade-qa.s3.amazonaws.com/IMG2025031715033331_noimage-705x705.jpg';};
-        document.getElementById("imageModalLabel").innerHTML=product.nombre;
-        document.getElementById("peso").innerHTML=`Peso: <strong>${product.peso}</strong> Kg.`;
-        document.getElementById("alto").innerHTML=`Alto: <strong>${product.alto}</strong> metros.`;
-        document.getElementById("ancho").innerHTML=`ancho: <strong>${product.ancho}</strong> metros.`;
-        document.getElementById("largo").innerHTML=`Largo: <strong>${product.largo}</strong> metros.`;
-        document.getElementById("imageModal").style.display = "flex";
-    
-      }
-    
-      function closeImageModal() {
-        document.getElementById("imageModal").style.display = "none";
-      }
-    
-      function createFilterOptions(options, selectId) {
-        let filterSelect = document.getElementById(selectId);
-        filterSelect.innerHTML = '<option value="">Todos</option>';
-        options.forEach(option => {
-          let opt = document.createElement('option');
-          opt.value = option;
-          opt.textContent = option;
-          filterSelect.appendChild(opt);
-        });
-      }
-    
-      function filterGallery() {
-        const selectedCategory = document.getElementById('categoryFilter').value;
-        const selectedChannel = document.getElementById('channelFilter').value;
-        const nameSearch = document.getElementById('nameFilter2').value.toLowerCase();
-        const filteredProducts = products.filter(p =>
-          (!selectedCategory || p.categoria === selectedCategory) &&
-          (!selectedChannel || p.canal === selectedChannel) &&
-          (!nameSearch || p.nombre.toLowerCase().includes(nameSearch))
-        );
-        createGallery(filteredProducts);
-        populateTable(filteredProducts);
-        populateTable2(filteredProducts);
-        updateDependentFilters(selectedCategory, selectedChannel,nameSearch);
-      }
-    
-      function searchProducts() {
-      const query = document.getElementById("nameFilter2").value.toLowerCase();
-      const filteredProducts = products.filter(p =>
-        p.nombre.toLowerCase().includes(query)
-      );
-      createGallery(filteredProducts);
-      populateTable(filteredProducts);
-      document.getElementById("nameFilter2").addEventListener("keydown", function(event) {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        searchProducts();
+      if (!selectedCategory || p.categoria === selectedCategory) {
+        channelSet.add(p.canal);
       }
     });
-    }
-    
-      function updateDependentFilters(selectedCategory, selectedChannel) {
-        let categorySet = new Set();
-        let channelSet = new Set();
-    
-        products.forEach(p => {
-          if (selectedChannel === "" || p.canal === selectedChannel) {
-            categorySet.add(p.categoria);
-          }
-          if (!selectedCategory || p.categoria === selectedCategory) {
-            channelSet.add(p.canal);
-          }
-        });
-    
-        let categoryFilter = document.getElementById('categoryFilter');
-        categoryFilter.innerHTML = '<option value="">Todas</option>';
-        categorySet.forEach(categoria => {
-          let option = document.createElement('option');
-          option.value = categoria;
-          option.textContent = categoria;
-          if (categoria === selectedCategory) option.selected = true;
-          categoryFilter.appendChild(option);
-        });
-    
-        let channelFilter = document.getElementById('channelFilter');
-        channelFilter.innerHTML = '<option value="">Todos</option>';
-        channelSet.forEach(canal => {
-          let option = document.createElement('option');
-          option.value = canal;
-          option.textContent = canal;
-          if (canal === selectedChannel) option.selected = true;
-          channelFilter.appendChild(option);
-        });
-      }
-    
-      function openAddModal(product) {
-        const modal = document.getElementById('addModal');
-        document.getElementById('modalProductName').textContent = product.nombre;
-        const input = document.getElementById('modalQuantity');
-        input.value = 1;
-        input.max = product.stock;
-        input.min = 1;
-        input.dataset.productId = product.id;
-        input.dataset.product = JSON.stringify(product);
-        modal.style.display = 'flex';
-    
-        document.getElementById('addToCartBtn').onclick = () => {
-          const quantity = parseInt(input.value);
-          const productObj = JSON.parse(input.dataset.product);
-          if (quantity >= 1 && quantity <= product.stock) {
-            cart.push({ ...productObj, cantidad: quantity });
-            modal.style.display = 'none';
-            renderCart();
-          } else {
-            alert('Cantidad inválida.');
-          }
-        };
-      }
-    
-      function closeAddModal() {
-        document.getElementById('addModal').style.display = 'none';
-      }
-    
-      function openCart() {
-        document.getElementById('cartModal').style.display = 'flex';
+
+    let categoryFilter = document.getElementById('categoryFilter');
+    categoryFilter.innerHTML = '<option value="">Todas</option>';
+    categorySet.forEach(categoria => {
+      let option = document.createElement('option');
+      option.value = categoria;
+      option.textContent = categoria;
+      if (categoria === selectedCategory) option.selected = true;
+      categoryFilter.appendChild(option);
+    });
+
+    let channelFilter = document.getElementById('channelFilter');
+    channelFilter.innerHTML = '<option value="">Todos</option>';
+    channelSet.forEach(canal => {
+      let option = document.createElement('option');
+      option.value = canal;
+      option.textContent = canal;
+      if (canal === selectedChannel) option.selected = true;
+      channelFilter.appendChild(option);
+    });
+  }
+
+  function openAddModal(product) {
+    const modal = document.getElementById('addModal');
+    document.getElementById('modalProductName').textContent = product.nombre;
+    const input = document.getElementById('modalQuantity');
+    input.value = 1;
+    input.max = product.stock;
+    input.min = 1;
+    input.dataset.productId = product.id;
+    input.dataset.product = JSON.stringify(product);
+    modal.style.display = 'flex';
+
+    document.getElementById('addToCartBtn').onclick = () => {
+      const quantity = parseInt(input.value);
+      const productObj = JSON.parse(input.dataset.product);
+      if (quantity >= 1 && quantity <= product.stock) {
+        cart.push({ ...productObj, cantidad: quantity });
+        modal.style.display = 'none';
         renderCart();
+      } else {
+        alert('Cantidad inválida.');
       }
-    
-      function closeCart() {
-        document.getElementById('cartModal').style.display = 'none';
-      }
-    
-      function renderCart() {
-        const tbody = document.getElementById('cartItems');
-        tbody.innerHTML = '';
-        cart.forEach(p => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${p.nombre}</td>
-            <td>${p.canal}</td>
-            <td>${p.categoria}</td>
-            <td>${p.cantidad}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-      }
-    
-      function openRequestModal() {
-        document.getElementById('requestModal').style.display = 'flex';
-        document.getElementById('cartModal').style.display = 'none';
-      }
-    
-      function closeRequestModal() {
-        document.getElementById('requestModal').style.display = 'none';
-      }
-    
-      function downloadTableAsExcel() {
-        const table = document.querySelector("#productTableBody2").closest("table");
-        const wb = XLSX.utils.table_to_book(table, { sheet: "Stocks" });
-        XLSX.writeFile(wb, "Stocks.xlsx");
-      }
-    
-    </script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    };
+  }
+
+  function closeAddModal() {
+    document.getElementById('addModal').style.display = 'none';
+  }
+
+  function openCart() {
+    document.getElementById('cartModal').style.display = 'flex';
+    renderCart();
+  }
+
+  function closeCart() {
+    document.getElementById('cartModal').style.display = 'none';
+  }
+
+  function renderCart() {
+    const tbody = document.getElementById('cartItems');
+    tbody.innerHTML = '';
+    cart.forEach(p => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${p.nombre}</td>
+        <td>${p.canal}</td>
+        <td>${p.categoria}</td>
+        <td>${p.cantidad}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function openRequestModal() {
+    document.getElementById('requestModal').style.display = 'flex';
+    document.getElementById('cartModal').style.display = 'none';
+  }
+
+  function closeRequestModal() {
+    document.getElementById('requestModal').style.display = 'none';
+  }
+
+  function downloadTableAsExcel() {
+    const table = document.querySelector("#productTableBody2").closest("table");
+    const wb = XLSX.utils.table_to_book(table, { sheet: "Stocks" });
+    XLSX.writeFile(wb, "Stocks.xlsx");
+  }
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 </body>
 </html>
