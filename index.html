@@ -374,7 +374,7 @@
   </div>
 
 <script>
-      let products = [];
+      let productos = [];
       let cart = [];
       let trazabilidad = [];
 
@@ -541,7 +541,7 @@ function openImageModalByIndex(index) {
     const selectedCategory = document.getElementById('categoryFilter').value;
     const selectedChannel = document.getElementById('channelFilter').value;
     const nameSearch = document.getElementById('nameFilter2').value.toLowerCase();
-    const filteredProducts = products.filter(p =>
+    const filteredProducts = productos.filter(p =>
       (!selectedCategory || p.categoria === selectedCategory) &&
       (!selectedChannel || p.canal === selectedChannel) &&
       (!nameSearch || p.nombre.toLowerCase().includes(nameSearch))
@@ -554,7 +554,7 @@ function openImageModalByIndex(index) {
 
   function searchProducts() {
   const query = document.getElementById("nameFilter2").value.toLowerCase();
-  const filteredProducts = products.filter(p =>
+  const filteredProducts = productos.filter(p =>
     p.nombre.toLowerCase().includes(query)
   );
   createGallery(filteredProducts);
@@ -571,7 +571,7 @@ function openImageModalByIndex(index) {
     let categorySet = new Set();
     let channelSet = new Set();
 
-    products.forEach(p => {
+    productos.forEach(p => {
       if (selectedChannel === "" || p.canal === selectedChannel) {
         categorySet.add(p.categoria);
       }
